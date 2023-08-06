@@ -1,4 +1,4 @@
-package com.rabo.online.aidemo.model;
+package com.rai.online.aidemo.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

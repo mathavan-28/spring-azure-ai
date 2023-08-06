@@ -1,4 +1,4 @@
-package com.rabo.online.aidemo;
+package com.rai.online.aidemo;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;

@@ -1,6 +1,6 @@
-package com.rabo.online.aidemo.controllers;
+package com.rai.online.aidemo.controllers;
 
-import com.rabo.online.aidemo.model.DemoMessage;
+import com.rai.online.aidemo.model.DemoMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,12 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class SimpleController {
 
-
-//    @CrossOrigin(origins = "http://localhost:4200")
+    //    @CrossOrigin(origins = "http://localhost:4200")
     @GetMapping("/welcome")
-    public ResponseEntity<DemoMessage> message(){
+    public ResponseEntity<DemoMessage> message() {
         log.info("called from angular!...");
-        DemoMessage demoMessage = new DemoMessage("AIDemo","Congrats ! your application deployed successfully in Azure Platform. !");
+        DemoMessage demoMessage = new DemoMessage("AIDemo", "Congrats ! your application deployed successfully in Azure Platform. !");
         return new ResponseEntity<>(demoMessage, HttpStatus.OK);
     }
 }

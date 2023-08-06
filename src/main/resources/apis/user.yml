@@ -1,0 +1,206 @@
+openapi: 3.0.1
+info:
+  title: Spring AI Demo
+  description: This is the API to read, create, update and delete Users
+  contact:
+    email: mathavan.venugopal@springai.nl
+  version: 1.0.0
+servers:
+  - url: https://localhost/
+paths:
+  /spring-ai/user:
+    get:
+      tags:
+        - user
+      summary: Get user for the email Id (emailId)
+      operationId: getUserByEmailId
+      parameters:
+        - in: query
+          name: userEmail
+          schema:
+            type: string
+            pattern: '^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$'
+            example: mathavan.v@springai.nl
+      responses:
+        200:
+          description: 'User Information'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+
+        400:
+          description: Bad request - Invalid Request Params
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        403:
+          description: Unauthorized
+            group
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        500:
+          description: Internal server error - error response from a downstream service
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+    post:
+      tags:
+        - user
+      summary: Create a new user
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userRequest'
+        required: true
+      responses:
+        201:
+          description: Created User Id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        400:
+          description: Bad request - Invalid Request Params
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        403:
+          description: Unauthorized
+            group
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        500:
+          description: Internal server error - error response from a downstream service
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+      x-codegen-request-body-name: user
+
+  /spring-ai/user/validate:
+    get:
+      tags:
+        - user
+      summary: validate user with email Id and password
+      operationId: validateUser
+      parameters:
+        - in: query
+          name: userEmail
+          schema:
+            type: string
+            pattern: '^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$'
+            example: mathavan.v@springai.nl
+        - in: query
+          name: password
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'User Information'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+
+        400:
+          description: Bad request - Invalid Request Params
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        403:
+          description: Unauthorized
+            group
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        500:
+          description: Internal server error - error response from a downstream service
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+components:
+  schemas:
+    userRequest:
+      required:
+        - firstName
+        - lastName
+        - email
+        - password
+        - lastModifiedBy
+
+      type: object
+      properties:
+        firstName:
+          pattern: '[A-Za-z0-9/+?():,.\s-''"]*'
+          type: string
+          minLength: 1
+          maxLength: 35
+        lastName:
+          pattern: '[A-Za-z0-9/+?():,.\s-''"]*'
+          type: string
+          minLength: 1
+          maxLength: 35
+        password:
+          type: string
+          pattern: '[A-Za-z0-9/+?():,.\s-'']*'
+          minLength: 1
+          maxLength: 35
+        email:
+          type: string
+          pattern: '^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$'
+          example: mathavan.v@springai.nl
+        lastModifiedBy:
+          type: string
+          pattern: '[A-Za-z0-9/+?():,.\s-''"]*'
+          maxLength: 10
+    user:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/userRequest'
+        - type: object
+          properties:
+            mobile:
+              type: string
+              pattern: '\+[0-9]{1,3}-[0-9()+\-]{1,30}'
+              minLength: 0
+              maxLength: 15
+            accountNo:
+              type: integer
+              minLength: 1
+              maxLength: 34
+              pattern: '[0-9]{1,30}'
+              description: Valid Account Number
+              example: 91 041 716 4300
+            userId:
+              type: integer
+              format: int64
+              minimum: 1
+
+    error:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code represents the error. When the request is successful(i.e.
+            when the status is OK), this field will be empty.
+          example: E001
+        message:
+          type: string
+          description: A human readable explanation specific to this occurrence of
+            the problem. When the request is successful(i.e. when the status is OK),
+            this field will be empty.
+          example: Database read timed out
