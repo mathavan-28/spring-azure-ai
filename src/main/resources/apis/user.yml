@@ -95,7 +95,7 @@ paths:
       operationId: validateUser
       parameters:
         - in: query
-          name: userEmail
+          name: email
           schema:
             type: string
             pattern: '^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$'
