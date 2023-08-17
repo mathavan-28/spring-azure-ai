@@ -34,6 +34,11 @@ public class UserController implements SpringAiApi {
         return new ResponseEntity<>(userService.getUserByEmailId(userEmail), HttpStatus.OK);
     }
 
+//    @Override
+//    public ResponseEntity<User> getUserDetailsById(@Valid Long userId) {
+//        return new ResponseEntity<>(userService.getUser(userId), HttpStatus.OK);
+//    }
+
     @Override
     public ResponseEntity<User> validateUser(@Valid String userEmail, @Valid String password) {
         return new ResponseEntity<>(userService.validateUser(userEmail, password), HttpStatus.OK);

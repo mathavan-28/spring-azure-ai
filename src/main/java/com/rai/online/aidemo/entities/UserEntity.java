@@ -40,9 +40,6 @@ public class UserEntity {
     @Column(name = "LAST_NM", nullable = false)
     private String lastName;
 
-    @Column(name = "ACC_NR")
-    private Integer accountNo = 1;
-
     @NotNull(message = "e-mail should not be null")
     @Column(name = "EMAIL", nullable = false)
     private String email;

@@ -1,33 +1,36 @@
 openapi: 3.0.1
 info:
   title: Spring AI Demo
-  description: This is the API to read, create, update and delete Users
+  description: This is the API to read, create, update and delete Accounts
   contact:
     email: mathavan.venugopal@springai.nl
   version: 1.0.0
 servers:
   - url: https://localhost/
 paths:
-  /spring-ai/user:
+  /spring-ai/account:
     get:
       tags:
-        - user
-      summary: Get user for the email Id (emailId)
-      operationId: getUserByEmailId
+        - account
+      summary: Get account by account Number (accountNo)
+      operationId: getAccountByAccountNo
       parameters:
         - in: query
-          name: userEmail
+          name: accountNo
           schema:
-            type: string
-            pattern: '^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$'
-            example: mathavan.v@springai.nl
+            type: integer
+            minLength: 1
+            maxLength: 34
+            pattern: '[0-9]{1,30}'
+            description: Valid Account Number
+            example: 91 041 716 4300
       responses:
         200:
-          description: 'User Information'
+          description: 'Account Information'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/user'
+                $ref: '#/components/schemas/account'
 
         400:
           description: Bad request - Invalid Request Params
@@ -50,22 +53,22 @@ paths:
                 $ref: '#/components/schemas/error'
     post:
       tags:
-        - user
-      summary: Create a new user
-      operationId: createUser
+        - account
+      summary: Create a new account
+      operationId: createAccount
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/userRequest'
+              $ref: '#/components/schemas/accountRequest'
         required: true
       responses:
         201:
-          description: Created User Id
+          description: Created Account Id
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/user'
+                $ref: '#/components/schemas/account'
         400:
           description: Bad request - Invalid Request Params
           content:
@@ -85,32 +88,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-      x-codegen-request-body-name: user
+      x-codegen-request-body-name: account
 
-  /spring-ai/user/validate:
+  /spring-ai/account/{accountId}:
     get:
       tags:
-        - user
-      summary: validate user with email Id and password
-      operationId: validateUser
+        - account
+      summary: Get account by account Id (accountId)
+      operationId: getAccountById
       parameters:
-        - in: query
-          name: email
+        - in: path
+          name: accountId
           schema:
-            type: string
-            pattern: '^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$'
-            example: mathavan.v@springai.nl
-        - in: query
-          name: password
-          schema:
-            type: string
+            type: integer
+            format: int64
+            minimum: 1
       responses:
         200:
-          description: 'User Information'
+          description: 'Account Information'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/user'
+                $ref: '#/components/schemas/account'
 
         400:
           description: Bad request - Invalid Request Params
@@ -131,76 +130,74 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-
 components:
   schemas:
-    userRequest:
+    accountRequest:
       required:
-        - firstName
-        - lastName
-        - email
-        - password
+        - accountNo
+        - branchName
+        - monthlyLimit
+        - usedLimit
+        - currentBal
+        - userId
         - lastModifiedBy
 
       type: object
       properties:
-        firstName:
+        accountNo:
+          type: integer
+          minLength: 1
+          maxLength: 34
+          pattern: '[0-9]{1,30}'
+          description: Valid Account Number
+          example: 91 041 716 4300
+        branchName:
           pattern: '[A-Za-z0-9/+?():,.\s-''"]*'
           type: string
-          minLength: 1
-          maxLength: 35
-        lastName:
-          pattern: '[A-Za-z0-9/+?():,.\s-''"]*'
-          type: string
-          minLength: 1
-          maxLength: 35
-        password:
-          type: string
-          pattern: '[A-Za-z0-9/+?():,.\s-'']*'
-          minLength: 1
-          maxLength: 35
-        email:
-          type: string
-          pattern: '^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$'
-          example: mathavan.v@springai.nl
-        mobile:
-          type: string
-          pattern: '\+[0-9]{1,3}-[0-9()+\-]{1,30}'
           minLength: 0
-          maxLength: 15
+          maxLength: 35
+        userId:
+          type: integer
+          format: int64
+          minimum: 1
+        monthlyLimit:
+          type: number
+          format: currency
+          multipleOf: 0.01
+          minimum: 0.00
+          maximum: 99999999999999999
+        usedLimit:
+          type: number
+          format: currency
+          multipleOf: 0.01
+          minimum: 0.00
+          maximum: 99999999999999999
+        currentBal:
+          type: number
+          format: currency
+          multipleOf: 0.01
+          minimum: 0.00
+          maximum: 99999999999999999
         lastModifiedBy:
           type: string
           pattern: '[A-Za-z0-9/+?():,.\s-''"]*'
           maxLength: 10
 
-    user:
+    account:
       type: object
       allOf:
-        - $ref: '#/components/schemas/userRequest'
+        - $ref: '#/components/schemas/accountRequest'
         - type: object
           properties:
-            userId:
+            accountId:
               type: integer
               format: int64
               minimum: 1
-            mobile:
-              type: string
-              pattern: '\+[0-9]{1,3}-[0-9()+\-]{1,30}'
-              minLength: 0
-              maxLength: 15
-            accounts:
+            transactions:
               type: array
               items:
-                $ref: "accounts.yml#/components/schemas/account"
-            LoanAccounts:
-              type: array
-              items:
-                - $ref: 'loans.yml#/components/schemas/loanAccount'
+                $ref: "transactions.yml#/components/schemas/transaction"
 
-    #    myLoanAccount:
-    #      type: object
-    #      allOf:
-    #        - $ref: 'loans.yml#/components/schemas/loanAccount'
 
     error:
       type: object

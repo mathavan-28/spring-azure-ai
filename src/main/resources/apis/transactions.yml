@@ -1,0 +1,169 @@
+openapi: 3.0.1
+info:
+  title: Spring AI Demo
+  description: This is the API to read, create, update and delete Transactions
+  contact:
+    email: mathavan.venugopal@springai.nl
+  version: 1.0.0
+servers:
+  - url: https://localhost/
+paths:
+  /spring-ai/transactions:
+    get:
+      tags:
+        - transactions
+      summary: Get transaction by transaction Id (transactionId)
+      operationId: getTransactionByTransactionId
+      parameters:
+        - in: query
+          name: transactionId
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        200:
+          description: 'Transaction Information'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/transaction'
+
+        400:
+          description: Bad request - Invalid Request Params
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        403:
+          description: Unauthorized
+            group
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        500:
+          description: Internal server error - error response from a downstream service
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+    post:
+      tags:
+        - transaction
+      summary: Create a new transaction
+      operationId: createTransaction
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/transactionRequest'
+        required: true
+      responses:
+        201:
+          description: Created Transaction Id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/transaction'
+        400:
+          description: Bad request - Invalid Request Params
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        403:
+          description: Unauthorized
+            group
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        500:
+          description: Internal server error - error response from a downstream service
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+      x-codegen-request-body-name: transaction
+
+components:
+  schemas:
+    transactionRequest:
+      required:
+        - accountPayee
+        - accountId
+        - amount
+        - paymentType
+        - description
+        - txnDate
+        - lastModifiedBy
+
+      type: object
+      properties:
+        accountId:
+          type: integer
+          format: int64
+          minimum: 1
+        accountPayee:
+          type: integer
+          minLength: 1
+          maxLength: 34
+          pattern: '[0-9]{1,30}'
+          description: Valid Account Number
+          example: 91 041 716 4300
+        amount:
+          type: number
+          format: currency
+          multipleOf: 0.01
+          minimum: 0.00
+          maximum: 99999999999999999
+        paymentType:
+          type: integer
+          enum: [ 0,1,2 ]
+          description: >
+            Payment type:
+             * 0 - Maestro
+             * 1 - Master
+             * 2 - Visa
+        description:
+          pattern: '[A-Za-z0-9/+?''():,.\s-"]*'
+          type: string
+          minLength: 0
+          maxLength: 140
+          description: Can contain alphabet, number, hyphen, underscore, whitespace
+            and dot
+        txnDate:
+          type: string
+          description: Date of transaction.
+          format: date
+        lastModifiedBy:
+          type: string
+          pattern: '[A-Za-z0-9/+?():,.\s-''"]*'
+          maxLength: 10
+
+    transaction:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/transactionRequest'
+        - type: object
+          properties:
+            transactionId:
+              type: integer
+              format: int64
+              minimum: 1
+
+    error:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code represents the error. When the request is successful(i.e.
+            when the status is OK), this field will be empty.
+          example: E001
+        message:
+          type: string
+          description: A human readable explanation specific to this occurrence of
+            the problem. When the request is successful(i.e. when the status is OK),
+            this field will be empty.
+          example: Database read timed out

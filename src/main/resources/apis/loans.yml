@@ -1,0 +1,168 @@
+openapi: 3.0.1
+info:
+  title: Spring AI Demo
+  description: This is the API to read, create, update and delete Loan Accounts
+  contact:
+    email: mathavan.venugopal@springai.nl
+  version: 1.0.0
+servers:
+  - url: https://localhost/
+paths:
+  /spring-ai/loanAccount:
+    get:
+      tags:
+        - loanAccount
+      summary: Get loanAccount by loan Id (loanId)
+      operationId: getLoanAccountByLoanId
+      parameters:
+        - in: query
+          name: loanId
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        200:
+          description: 'Loan Account Information'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/loanAccount'
+
+        400:
+          description: Bad request - Invalid Request Params
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        403:
+          description: Unauthorized
+            group
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        500:
+          description: Internal server error - error response from a downstream service
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+    post:
+      tags:
+        - loanAccount
+      summary: Create a new loan Account
+      operationId: createLoanAccount
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/loanAccountRequest'
+        required: true
+      responses:
+        201:
+          description: Created Loan Account Id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/loanAccount'
+        400:
+          description: Bad request - Invalid Request Params
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        403:
+          description: Unauthorized
+            group
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        500:
+          description: Internal server error - error response from a downstream service
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+      x-codegen-request-body-name: loanAccount
+
+components:
+  schemas:
+    loanAccountRequest:
+      required:
+        - loanAccountNo
+        - planName
+        - minSanctionedAmount
+        - interestRate
+        - maxTenure
+        - userId
+        - lastModifiedBy
+
+      type: object
+      properties:
+        loanAccountNo:
+          type: integer
+          minLength: 1
+          maxLength: 34
+          pattern: '[0-9]{1,30}'
+          description: Valid Account Number
+          example: 91 041 716 4300
+        planName:
+          pattern: '[A-Za-z0-9/+?():,.\s-''"]*'
+          type: string
+          minLength: 0
+          maxLength: 35
+        interestRate:
+          type: number
+          format: percentage
+          multipleOf: 0.01
+          minimum: 0.00
+          maximum: 99999999999999999
+        minSanctionedAmount:
+          type: number
+          format: currency
+          multipleOf: 0.01
+          minimum: 0.00
+          maximum: 99999999999999999
+        maxTenure:
+          schema:
+            type: integer
+            minimum: 1
+            multipleOf: 1
+            maximum: 99
+        userId:
+          type: integer
+          format: int64
+          minimum: 1
+        lastModifiedBy:
+          type: string
+          pattern: '[A-Za-z0-9/+?():,.\s-''"]*'
+          maxLength: 10
+
+    loanAccount:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/loanAccountRequest'
+        - type: object
+          properties:
+            loanId:
+              type: integer
+              format: int64
+              minimum: 1
+
+
+    error:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code represents the error. When the request is successful(i.e.
+            when the status is OK), this field will be empty.
+          example: E001
+        message:
+          type: string
+          description: A human readable explanation specific to this occurrence of
+            the problem. When the request is successful(i.e. when the status is OK),
+            this field will be empty.
+          example: Database read timed out

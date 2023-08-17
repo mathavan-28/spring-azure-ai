@@ -1,10 +1,14 @@
 package com.rai.online.aidemo.services.impl;
 
+import com.rai.online.aidemo.apis.model.Account;
+import com.rai.online.aidemo.apis.model.LoanAccount;
 import com.rai.online.aidemo.apis.model.User;
 import com.rai.online.aidemo.apis.model.UserRequest;
 import com.rai.online.aidemo.entities.UserEntity;
 import com.rai.online.aidemo.exceptions.SpringAIDemoException;
 import com.rai.online.aidemo.repo.UserRepository;
+import com.rai.online.aidemo.services.AccountService;
+import com.rai.online.aidemo.services.LoanService;
 import com.rai.online.aidemo.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -30,8 +34,14 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    private final AccountService accountService;
+
+    private final LoanService loanService;
+
+    public UserServiceImpl(UserRepository userRepository, AccountService accountService, LoanService loanService) {
         this.userRepository = userRepository;
+        this.accountService = accountService;
+        this.loanService = loanService;
     }
 
     @Override
@@ -51,9 +61,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUser(Long userId) {
-        UserEntity userEntity = userRepository.findById(userId)
-                .orElseThrow(() -> new SpringAIDemoException(E2006, "Invalid User ID - " + userId));
-        return convertToModel(userEntity);
+        UserEntity userEntity = userRepository.findById(userId).orElseThrow(() -> new SpringAIDemoException(E2006, "Invalid User ID - " + userId));
+        User userModel = addAccountAndLoanInfo(userEntity, userEntity.getUserId());
+        return userModel;
     }
 
     @Override
@@ -67,12 +77,12 @@ public class UserServiceImpl implements UserService {
             Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
             UserEntity userEntity = userEntityOptional.orElseThrow();
 
-            trimUserNames(user);
+            trimUserEntities(user);
 
-            if (!userRepository.existsByEmailId(user.getEmail())) {
+            if (userRepository.existsByEmailId(user.getEmail())) {
                 return convertToModel(userRepository.save(userEntity));
             } else {
-                throw new SpringAIDemoException(E2012, "User already exists!");
+                throw new SpringAIDemoException(E2012, "User not exists!");
             }
         } else {
             throw new SpringAIDemoException(E2015, "User not found with id: " + userId);
@@ -82,30 +92,26 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void deleteUser(Long userId) {
-        UserEntity userEntity = userRepository.findById(userId)
-                .orElseThrow(() -> new SpringAIDemoException(E2006, "Invalid User ID - " + userId));
-//        currentBatchService.deleteTransactionsInBatchByDebtorIds(List.of(debtorEntity.getDebtorId()));
+        UserEntity userEntity = userRepository.findById(userId).orElseThrow(() -> new SpringAIDemoException(E2006, "Invalid User ID - " + userId));
+
         userRepository.delete(userEntity);
     }
 
     @Override
     public User getUserByEmailId(String email) {
-        UserEntity userEntity = userRepository.findByEmail(email)
-                .orElseThrow(() -> new SpringAIDemoException(E2013, "User not exists with this Mail Id!"));
-
-        return convertToModel(userEntity);
+        UserEntity userEntity = userRepository.findByEmail(email).orElseThrow(() -> new SpringAIDemoException(E2013, "User not exists with this Mail Id!"));
+        User userModel = addAccountAndLoanInfo(userEntity, userEntity.getUserId());
+        return userModel;
     }
 
     @Override
     public User validateUser(String userEmail, String password) {
         if (!ObjectUtils.isEmpty(userEmail) && !ObjectUtils.isEmpty(password)) {
-            UserEntity userEntity = userRepository.findByEmail(userEmail)
-                    .orElseThrow(() -> new SpringAIDemoException(E2013, "User not exists with this Mail Id!"));
+            UserEntity userEntity = userRepository.findByEmail(userEmail).orElseThrow(() -> new SpringAIDemoException(E2013, "User not exists with this Mail Id!"));
 
             if (userEntity.getEmail().equals(userEmail) && userEntity.getPassword().equals(password))
                 return convertToModel(userEntity);
-            else
-                return null;
+            else return null;
         } else return null;
     }
 
@@ -116,14 +122,25 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteAll(userEntities);
     }
 
+    private User addAccountAndLoanInfo(UserEntity userEntity, Long userId) {
+        User userModel = new User();
+        BeanUtils.copyProperties(userEntity, userModel);
+        List<Account> accounts = accountService.getAllAccountsByUserId(userId);
+        userModel.setAccounts(accounts);
+
+        List<LoanAccount> loanAccountList = loanService.getAllLoanAccountsByUserId(userId);
+        userModel.setLoanAccounts(loanAccountList);
+        return userModel;
+    }
+
     private User buildUserRequest(UserRequest userRequest) {
         User user = new User();
-        trimUserNames(userRequest);
+        trimUserEntities(userRequest);
         BeanUtils.copyProperties(userRequest, user);
         return user;
     }
 
-    private void trimUserNames(UserRequest user) {
+    private void trimUserEntities(UserRequest user) {
         user.setFirstName(user.getFirstName().trim());
         user.setLastName(user.getLastName().trim());
     }

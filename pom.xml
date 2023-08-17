@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -16,7 +16,7 @@
     <properties>
         <java.version>11</java.version>
         <spring-security.version>5.7.1</spring-security.version>
-<!--        <spring.cloud.version>3.1.2</spring.cloud.version>-->
+        <!--        <spring.cloud.version>3.1.2</spring.cloud.version>-->
         <spring-cloud-services-dependencies.version>3.4.1</spring-cloud-services-dependencies.version>
     </properties>
     <dependencies>
@@ -232,6 +232,60 @@
                                 <dateLibrary>java8</dateLibrary>
                                 <interfaceOnly>true</interfaceOnly>
                                 <apiPackage>com.rai.online.aidemo.apis.users</apiPackage>
+                                <modelPackage>com.rai.online.aidemo.apis.model</modelPackage>
+                                <serializableModel>true</serializableModel>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>execution-ai-accountEntity-swagger</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/apis/accounts.yml</inputSpec>
+                            <language>spring</language>
+                            <configOptions>
+                                <java11>true</java11>
+                                <dateLibrary>java8</dateLibrary>
+                                <interfaceOnly>true</interfaceOnly>
+                                <apiPackage>com.rai.online.aidemo.apis.accounts</apiPackage>
+                                <modelPackage>com.rai.online.aidemo.apis.model</modelPackage>
+                                <serializableModel>true</serializableModel>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>execution-ai-transactionEntity-swagger</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/apis/transactions.yml</inputSpec>
+                            <language>spring</language>
+                            <configOptions>
+                                <java11>true</java11>
+                                <dateLibrary>java8</dateLibrary>
+                                <interfaceOnly>true</interfaceOnly>
+                                <apiPackage>com.rai.online.aidemo.apis.transactions</apiPackage>
+                                <modelPackage>com.rai.online.aidemo.apis.model</modelPackage>
+                                <serializableModel>true</serializableModel>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>execution-ai-loanEntity-swagger</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/apis/loans.yml</inputSpec>
+                            <language>spring</language>
+                            <configOptions>
+                                <java11>true</java11>
+                                <dateLibrary>java8</dateLibrary>
+                                <interfaceOnly>true</interfaceOnly>
+                                <apiPackage>com.rai.online.aidemo.apis.loans</apiPackage>
                                 <modelPackage>com.rai.online.aidemo.apis.model</modelPackage>
                                 <serializableModel>true</serializableModel>
                             </configOptions>
