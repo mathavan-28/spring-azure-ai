@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.File;
+
 @Getter
 @Data
 @Setter
@@ -15,4 +17,6 @@ public class DemoMessage {
 
     private String appName;
     private String message;
+
+    private String audioFile;
 }

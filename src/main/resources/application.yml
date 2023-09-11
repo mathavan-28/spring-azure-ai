@@ -39,6 +39,23 @@ spring:
         health-indicator:
           enabled: false
 
+client:
+  azure:
+    speech:
+      endpoint: https://test-speech-072023.cognitiveservices.azure.com/sts/v1.0/issuetoken
+      subscription-key: 6e03d7598fa84e6c83a0c0533cbe5f19
+      region: westeurope
+    analytics:
+      endpoint: https://test-ai-language-service.cognitiveservices.azure.com/
+      subscription-key: 5ca10e361f524951ad91952b00ed14ef
+      region: westeurope
+    vision:
+      endpoint: https://vision-demo-ai.cognitiveservices.azure.com/vision/v2.0/recognizeText
+      subscription-key: 4dc83ea2d03848d5a4cab8ba35bf8116
+      region: westeurope
+speech:
+  keyword-list: '["mandate","mandates","statement","statements","international payments","transaction","transactions"]'
+
 logging:
   level:
     org.hibernate.SQL: DEBUG

@@ -15,7 +15,7 @@ public class SimpleController {
     @GetMapping("/welcome")
     public ResponseEntity<DemoMessage> message() {
         log.info("called from angular!...");
-        DemoMessage demoMessage = new DemoMessage("AIDemo", "Congrats ! your application deployed successfully in Azure Platform. !");
+        DemoMessage demoMessage = new DemoMessage("AIDemo", "Congrats ! your application deployed successfully in Azure Platform. !",null);
         return new ResponseEntity<>(demoMessage, HttpStatus.OK);
     }
 }
