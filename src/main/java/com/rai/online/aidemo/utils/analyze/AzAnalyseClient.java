@@ -13,7 +13,7 @@ public class AzAnalyseClient  {
 
     private final AzAnalyseClientProperties azAnalyseClientProperties;
 
-//    private static String KEY = "5ca10e361f524951ad91952b00ed14ef";
+
 //
 //    private static String ENDPOINT = "https://test-ai-language-service.cognitiveservices.azure.com/";
 

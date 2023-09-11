@@ -57,7 +57,7 @@ public class AzVisionClient {
             URI uri = builder.build();
             requestObj = new HttpPost(uri);
             //   request.setHeader("Content-Type", "application/octet-stream");
-            requestObj.setHeader("Ocp-Apim-Subscription-Key", "4dc83ea2d03848d5a4cab8ba35bf8116");
+
 
         } catch (Exception e) {
             // Display error message.
@@ -191,7 +191,7 @@ public class AzVisionClient {
 
         try {
             HttpGet resultRequest = new HttpGet(url);
-            resultRequest.setHeader("Ocp-Apim-Subscription-Key", "4dc83ea2d03848d5a4cab8ba35bf8116");
+
             httpclient = HttpClients.createDefault();
             resultResponse = httpclient.execute(resultRequest);
             HttpEntity responseEntity = resultResponse.getEntity();
