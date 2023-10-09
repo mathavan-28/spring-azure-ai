@@ -239,9 +239,11 @@ public class AzVisionClient {
                 BigDecimal confidence_score = tempList.stream()
                         .reduce(BigDecimal.ZERO, BigDecimal::add)
                         .divide(new BigDecimal(tempList.size()), 3, RoundingMode.HALF_EVEN);
-                System.out.println(confidence_score);
+
                 COLOR_CODE = confidence_score.compareTo(new BigDecimal(azVisionClientProperties.getThreshold())) > 0 ? AIDemoColorCode.COLOR_GREEN.getValue() : AIDemoColorCode.COLOR_RED.getValue();
                 var lineText = (String) gson1.get("text");
+                if(confidence_score.compareTo(new BigDecimal(azVisionClientProperties.getThreshold())) > 0)
+                    System.out.println(lineText+": "+confidence_score);
                 if (lineText.equals("Creditor name")) {
                     skipElements = false;
                 }
