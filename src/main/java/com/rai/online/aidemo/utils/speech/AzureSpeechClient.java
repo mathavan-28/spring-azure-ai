@@ -17,10 +17,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Base64;
 import java.net.URI;
 import java.nio.file.Files;
-import java.util.List;
+import java.util.Base64;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -39,11 +38,11 @@ public class AzureSpeechClient {
         this.env = env;
     }
 
-    public SpeechConfig getSpeechConfig(){
+    public SpeechConfig getSpeechConfig() {
         String speechKey = azSpeechClientProperties.getSubscriptionKey();
         String speechRegion = azSpeechClientProperties.getRegion();
         SpeechConfig speechConfig = SpeechConfig.fromSubscription(speechKey, speechRegion);
-        SpeechConfig speechConfig1 = SpeechConfig.fromEndpoint(URI.create("https://test-speech-072023.cognitiveservices.azure.com/sts/v1.0/issuetoken"),speechKey);
+        SpeechConfig speechConfig1 = SpeechConfig.fromEndpoint(URI.create("https://test-speech-072023.cognitiveservices.azure.com/sts/v1.0/issuetoken"), speechKey);
         speechConfig.setSpeechRecognitionLanguage("en-US");
 
         speechConfig1.setSpeechRecognitionLanguage("en-US");
@@ -72,11 +71,9 @@ public class AzureSpeechClient {
         if (speechRecognitionResult.getReason() == ResultReason.RecognizedSpeech) {
             resultedSpeech = speechRecognitionResult.getText();
             System.out.println("RECOGNIZED: Text=" + resultedSpeech);
-        }
-        else if (speechRecognitionResult.getReason() == ResultReason.NoMatch) {
+        } else if (speechRecognitionResult.getReason() == ResultReason.NoMatch) {
             System.out.println("NOMATCH: Speech could not be recognized.");
-        }
-        else if (speechRecognitionResult.getReason() == ResultReason.Canceled) {
+        } else if (speechRecognitionResult.getReason() == ResultReason.Canceled) {
             CancellationDetails cancellation = CancellationDetails.fromResult(speechRecognitionResult);
             System.out.println("CANCELED: Reason=" + cancellation.getReason());
 
@@ -87,26 +84,26 @@ public class AzureSpeechClient {
             }
         }
         return resultedSpeech;
-
     }
 
-    public String  getResponseAudio(SpeechConfig speechConfig, String keyword) throws IOException {
+    public String getResponseAudio(SpeechConfig speechConfig, String keyword, boolean forGenAI) throws IOException {
         speechConfig.setSpeechSynthesisVoiceName("en-US-JennyNeural");
         AudioConfig audioConfig = AudioConfig.fromWavFileOutput("src/main/resources/aiSpeech.wav");
-        SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer(speechConfig,audioConfig);
+        SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer(speechConfig, audioConfig);
 
         // Get text from the console and synthesize to the default speaker.
 //        System.out.println("Enter some text that you want to speak >");
 //        String text = new Scanner(System.in).nextLine();
-        String text= "Perfect. Here we go";
+        String text = "Perfect. Here we go";
         var keywordsList = env.getProperty("speech.keyword-list");
 //        List keywordsList = List.of("mandate","mandates","statement","statements","international payments","transaction","transactions");
 
-        if (keyword.isEmpty() || !keywordsList.contains(keyword.toLowerCase()))
-        {
-            text= "Sorry, Please try again!";
+        if (keyword.isEmpty() || !keywordsList.contains(keyword.toLowerCase())) {
+            text = "Sorry, Please try again!";
         }
-
+        if (forGenAI) {
+            text = keyword;
+        }
         SpeechSynthesisResult speechSynthesisResult = null;
 
         try {
@@ -119,9 +116,7 @@ public class AzureSpeechClient {
 
         if (speechSynthesisResult.getReason() == ResultReason.SynthesizingAudioCompleted) {
             System.out.println("Speech synthesized to speaker for text [" + text + "]");
-
-        }
-        else if (speechSynthesisResult.getReason() == ResultReason.Canceled) {
+        } else if (speechSynthesisResult.getReason() == ResultReason.Canceled) {
             SpeechSynthesisCancellationDetails cancellation = SpeechSynthesisCancellationDetails.fromResult(speechSynthesisResult);
             System.out.println("CANCELED: Reason=" + cancellation.getReason());
 
@@ -141,7 +136,5 @@ public class AzureSpeechClient {
 //                .getResourceAsStream("src/main/resources/aiSpeech.wav");
 
         return encoded;
-
-
     }
 }

@@ -220,6 +220,11 @@
             <artifactId>azure-ai-formrecognizer</artifactId>
             <version>4.0.8</version>
         </dependency>
+        <dependency>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>msal4j</artifactId>
+            <version>1.13.8</version>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>

@@ -1,17 +1,11 @@
 package com.rai.online.aidemo.utils.image;
 
-import com.azure.ai.textanalytics.TextAnalyticsClient;
-import com.azure.ai.textanalytics.TextAnalyticsClientBuilder;
-import com.azure.core.credential.AzureKeyCredential;
 import com.rai.online.aidemo.model.AiProcessedImageResponse;
-import com.rai.online.aidemo.utils.AzureAIClientProperties;
-import com.rai.online.aidemo.utils.analyze.AzAnalyseClientProperties;
-
+import com.rai.online.aidemo.utils.AIDemoColorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -28,15 +22,20 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Component
 public class AzVisionClient {
+
+    private static String COLOR_CODE = null;
 
     private final AzVisionClientProperties azVisionClientProperties;
 
@@ -47,18 +46,17 @@ public class AzVisionClient {
 
     }
 
-    public HttpPost getVisionClientRequestObject(){
+    public HttpPost getVisionClientRequestObject() {
         HttpPost requestObj = null;
         try {
-            URIBuilder builder = new URIBuilder("https://vision-demo-ai.cognitiveservices.azure.com/vision/v2.0/recognizeText");
+            URIBuilder builder = new URIBuilder(azVisionClientProperties.getEndpoint());
             builder.setParameter("handwriting", "false");
             builder.setParameter("mode", "Printed");
 //                builder.setParameter("detectOrientation", String.valueOf(true));
             URI uri = builder.build();
             requestObj = new HttpPost(uri);
             //   request.setHeader("Content-Type", "application/octet-stream");
-
-
+            requestObj.setHeader("Ocp-Apim-Subscription-Key", "4dc83ea2d03848d5a4cab8ba35bf8116");
         } catch (Exception e) {
             // Display error message.
             System.out.println(e.getMessage());
@@ -84,7 +82,7 @@ public class AzVisionClient {
         File localImageFile = new File(tempFile.getPath());
         InputStreamEntity reqEntity = null;
         JSONObject json = null;
-        CloseableHttpClient httpclient =null;
+        CloseableHttpClient httpclient = null;
         CloseableHttpResponse textResponse = null;
         try {
             reqEntity = new InputStreamEntity(
@@ -95,9 +93,8 @@ public class AzVisionClient {
             requestObj.setEntity(reqEntity);
             httpclient = HttpClients.createDefault();
 
-
             textResponse = httpclient.execute(requestObj);
-            json =  getTextResponse(textResponse);
+            json = getTextResponse(textResponse);
             httpclient.close();
         } catch (IOException e) {
             textResponse.close();
@@ -106,7 +103,6 @@ public class AzVisionClient {
             httpclient.close();
         }
         return convertToResponseModel(json);
-
     }
 
     private JSONObject handleResponseDefault(HttpEntity entity, String sourceLocation) throws Exception {
@@ -118,10 +114,12 @@ public class AzVisionClient {
         }
         return json;
     }
+
     private void addParameters(URIBuilder builder, List<String> visualFeatures, List<String> details) {
         addParameters(builder, "visualFeatures", visualFeatures);
         addParameters(builder, "details", details);
     }
+
     private void addParameters(URIBuilder builder, String name, List<String> list) {
         if (list != null) {
             StringBuffer sb = new StringBuffer();
@@ -135,7 +133,7 @@ public class AzVisionClient {
         }
     }
 
-    private JSONObject getTextResponse(HttpResponse textResponse){
+    private JSONObject getTextResponse(HttpResponse textResponse) {
         JSONObject json = null;
         try {
             if (textResponse.getStatusLine().getStatusCode() != 202) {
@@ -167,8 +165,7 @@ public class AzVisionClient {
             System.out.println("\nHandwritten text submitted. Waiting 3 seconds to retrieve the recognized text.\n");
             Thread.sleep(2000);
             // Execute the second REST API call and get the response.
-            json  = getTextOperations(operationLocation);
-
+            json = getTextOperations(operationLocation);
         } catch (Exception e) {
             // Display error message.
             System.out.println(e.getMessage());
@@ -191,13 +188,12 @@ public class AzVisionClient {
 
         try {
             HttpGet resultRequest = new HttpGet(url);
-
+            resultRequest.setHeader("Ocp-Apim-Subscription-Key", "4dc83ea2d03848d5a4cab8ba35bf8116");
             httpclient = HttpClients.createDefault();
             resultResponse = httpclient.execute(resultRequest);
             HttpEntity responseEntity = resultResponse.getEntity();
 
             json = handleResponseDefault(responseEntity, null);
-
         } catch (Exception e) {
             try {
                 resultResponse.close();
@@ -206,7 +202,7 @@ public class AzVisionClient {
             }
             // Display error message.
             System.out.println(e.getMessage());
-        }finally {
+        } finally {
             try {
                 httpclient.close();
             } catch (IOException e) {
@@ -214,29 +210,47 @@ public class AzVisionClient {
             }
         }
         return json;
-
     }
 
     private AiProcessedImageResponse convertToResponseModel(JSONObject json) {
         AiProcessedImageResponse aiProcessedImageResponse = new AiProcessedImageResponse();
         ArrayList<String> arrayList = new ArrayList<>();
+        Map<String, String> color_map = new HashMap<String, String>();
         if (json != null) {
-            JSONObject gson = (JSONObject) json.get("recognitionResult");
-            JSONArray arr = gson.getJSONArray("lines");
+            JSONObject gson = (JSONObject) json.get("analyzeResult");
+            JSONObject readResults = (JSONObject) gson.getJSONArray("readResults").get(0);
+            JSONArray arr = readResults.getJSONArray("lines");
+
+//            JSONObject gson = (JSONObject) json.get("recognitionResult");
+//            JSONArray arr = gson.getJSONArray("lines");
             var skipElements = true;
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject gson1 = arr.getJSONObject(i);
+//                JSONObject appearance = (JSONObject) gson1.get("appearance");
+//                JSONObject line_attributes =  (JSONObject) appearance.get("style");
+//                BigDecimal confidence_score = (BigDecimal) line_attributes.get("confidence");
+
+                JSONArray wordsArray = gson1.getJSONArray("words");
+                List<BigDecimal> tempList = new ArrayList<>();
+                for (var obj : wordsArray) {
+                    JSONObject word = (JSONObject) obj;
+                    tempList.add((BigDecimal) word.get("confidence"));
+                }
+                BigDecimal confidence_score = tempList.stream()
+                        .reduce(BigDecimal.ZERO, BigDecimal::add)
+                        .divide(new BigDecimal(tempList.size()), 3, RoundingMode.HALF_EVEN);
+                System.out.println(confidence_score);
+                COLOR_CODE = confidence_score.compareTo(new BigDecimal(azVisionClientProperties.getThreshold())) > 0 ? AIDemoColorCode.COLOR_GREEN.getValue() : AIDemoColorCode.COLOR_RED.getValue();
                 var lineText = (String) gson1.get("text");
-                if (gson1.get("text").toString().equals("Creditor name")) {
+                if (lineText.equals("Creditor name")) {
                     skipElements = false;
                 }
+
                 if (!skipElements) {
-                    if (!skipElements) {
-                        lineText = lineText.replaceAll("\\.", "");
-                        if (lineText != null && !lineText.trim().isEmpty()) {
-                            arrayList.add(lineText);
-                        }
-                        ;
+                    lineText = lineText.replaceAll("\\.", "");
+                    if (lineText != null && !lineText.trim().isEmpty()) {
+                        arrayList.add(lineText);
+                        color_map.put(lineText, COLOR_CODE);
                     }
                 }
             }
@@ -248,25 +262,33 @@ public class AzVisionClient {
                 if (key.equalsIgnoreCase("Creditor name")) {
                     //                    System.out.println("Creditor name: " + arrayList.get(i + 1).trim());
                     aiProcessedImageResponse.setCreditorName(value);
+                    aiProcessedImageResponse.setCreditorNameColor(color_map.get(arrayList.get(i + 1)));
                 } else if (key.equalsIgnoreCase("Creditor address")) {
                     aiProcessedImageResponse.setCreditorAddress(value);
+                    aiProcessedImageResponse.setCreditorAddressColor(color_map.get(arrayList.get(i + 1)));
                     //                    System.out.println("Creditor address: " + arrayList.get(i+1).trim());
                 } else if (key.equalsIgnoreCase("Creditor postcode")) {
                     aiProcessedImageResponse.setCreditorPostalCode(value);
+                    aiProcessedImageResponse.setCreditorPostalCodeColor(color_map.get(arrayList.get(i + 1)));
                     //                    System.out.println("Creditor postcode: " + arrayList.get(i+1).trim());
                 } else if (key.contains("Creditor town")) {
-                    aiProcessedImageResponse.setCreditorCity(key.substring(key.indexOf(":") + 1).trim());
+                    var val = arrayList.get(i + 2).trim();
+                    aiProcessedImageResponse.setCreditorCity(arrayList.get(i + 2).trim());
+                    aiProcessedImageResponse.setCreditorCityColor(color_map.get(arrayList.get(i + 2)));
                     //                    System.out.println("Creditor address: " + );
-                    i--;
+                    i++;
                 } else if (key.contains("Creditor country")) {
                     aiProcessedImageResponse.setCreditorCountry(value);
+                    aiProcessedImageResponse.setCreditorCountryColor(color_map.get(arrayList.get(i + 1)));
                     //                    System.out.println("Creditor country: " + arrayList.get(i+1).trim());
                 } else if (key.contains("Creditor identifier")) {
                     aiProcessedImageResponse.setCreditorIdentifier(key.substring(key.indexOf(":") + 1).trim());
+                    aiProcessedImageResponse.setCreditorIdentifierColor(color_map.get(arrayList.get(i)));
                     //                    System.out.println("Creditor identifier: " + key.substring(key.indexOf(":") + 1).trim());
                     i--;
                 } else if (key.contains("Mandate reference")) {
                     aiProcessedImageResponse.setMandateReference(value);
+                    aiProcessedImageResponse.setMandateReferenceColor(color_map.get(arrayList.get(i + 1)));
                     //                    System.out.println("Mandate reference: " + arrayList.get(i+1).trim());
                 }
             }

@@ -26,4 +26,18 @@ public class AiProcessedImageResponse {
     private String creditorCountry;
 
     private String mandateReference;
+
+    private String creditorNameColor;
+
+    private String creditorIdentifierColor;
+
+    private String creditorAddressColor;
+
+    private String creditorPostalCodeColor;
+
+    private String creditorCityColor;
+
+    private String creditorCountryColor;
+
+    private String mandateReferenceColor;
 }

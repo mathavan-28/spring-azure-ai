@@ -9,11 +9,11 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class AzAnalyseClient  {
+public class AzAnalyseClient {
 
     private final AzAnalyseClientProperties azAnalyseClientProperties;
 
-
+//    private static String KEY = "5ca10e361f524951ad91952b00ed14ef";
 //
 //    private static String ENDPOINT = "https://test-ai-language-service.cognitiveservices.azure.com/";
 
@@ -24,7 +24,7 @@ public class AzAnalyseClient  {
 
     }
 
-    public TextAnalyticsClient getTextAnalyticsClient(){
+    public TextAnalyticsClient getTextAnalyticsClient() {
         String analyseServiceKey = azAnalyseClientProperties.getSubscriptionKey();
         String analyseServiceEndpoint = azAnalyseClientProperties.getEndpoint();
 
@@ -34,12 +34,11 @@ public class AzAnalyseClient  {
                 .buildClient();
     }
 
-    public String extractKeyPhrasesExample(TextAnalyticsClient client, String text)
-    {
+    public String extractKeyPhrasesExample(TextAnalyticsClient client, String text) {
         String extractedText = "";
         // The text to be analyzed
-        if(text == null)
-         text = "i want to create a new mandate for my account";
+        if (text == null)
+            text = "i want to create a new mandate for my account";
 
         System.out.printf("Recognized phrases: %n");
         for (String keyPhrase : client.extractKeyPhrases(text)) {
@@ -48,10 +47,9 @@ public class AzAnalyseClient  {
         }
         for (CategorizedEntity entityphrase : client.recognizeEntities(text)) {
             System.out.printf("%s%n", entityphrase.getText());
-            System.out.printf("%s%n", entityphrase.getSubcategory());System.out.printf("%s%n", entityphrase.toString());
-
+            System.out.printf("%s%n", entityphrase.getSubcategory());
+            System.out.printf("%s%n", entityphrase.toString());
         }
         return extractedText;
     }
-
 }

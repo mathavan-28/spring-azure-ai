@@ -1,0 +1,26 @@
+{
+  "question": "%s",
+  "records": [
+    {
+      "id": "1",
+      "text": "10 secs. it took approximates 10 secs to reach 100 meters. you have to practise for it."
+    },
+    {
+      "id": "2",
+      "text": "water is made up of oxygen and hydrogen."
+    },
+        {
+      "id": "3",
+      "text": "stone is made up of soil."
+    },
+        {
+      "id": "4",
+      "text": "Subscription key which provides access to this API."
+    },
+    {
+      "id": "5",
+      "text": "Rabobank got its start as group of small credit unions founded by farmers. Their entrepreneurial spirit and cooperative mentality have guided us throughout our 125-year history.At the end of the 19th century, Dutch farmers and horticulturists wanted to modernize but had difficulty getting credit. So they decided to establish credit cooperatives. These cooperative banks became a great success.  That is why they founded two overarching organizations in 1898"
+    }
+  ],
+  "language": "en"
+}

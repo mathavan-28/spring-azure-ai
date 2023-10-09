@@ -1,9 +1,8 @@
-package com.rai.online.aidemo.utils.image;
+package com.rai.online.aidemo.utils.genAI;
 
 import com.rai.online.aidemo.utils.AzureAIClientProperties;
 import lombok.Getter;
 import lombok.Setter;
-import net.jcip.annotations.GuardedBy;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Component;
@@ -12,9 +11,7 @@ import org.springframework.stereotype.Component;
 @Setter
 @RefreshScope
 @Component
-@ConfigurationProperties(prefix = "client.azure.vision")
-public class AzVisionClientProperties extends AzureAIClientProperties {
+@ConfigurationProperties(prefix = "client.azure.language")
+public class AzlanguageClientProperties extends AzureAIClientProperties {
 
-    @GuardedBy("this")
-    private String threshold;
 }
