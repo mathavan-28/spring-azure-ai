@@ -242,8 +242,8 @@ public class AzVisionClient {
 
                 COLOR_CODE = confidence_score.compareTo(new BigDecimal(azVisionClientProperties.getThreshold())) > 0 ? AIDemoColorCode.COLOR_GREEN.getValue() : AIDemoColorCode.COLOR_RED.getValue();
                 var lineText = (String) gson1.get("text");
-                if(confidence_score.compareTo(new BigDecimal(azVisionClientProperties.getThreshold())) > 0)
-                    System.out.println(lineText+": "+confidence_score);
+//                if(confidence_score.compareTo(new BigDecimal(azVisionClientProperties.getThreshold())) > 0)
+//                    System.out.println(lineText+": "+confidence_score);
                 if (lineText.equals("Creditor name")) {
                     skipElements = false;
                 }
@@ -257,7 +257,7 @@ public class AzVisionClient {
                 }
             }
 //            System.out.println("text content: ++++++++++");
-            System.out.println(arrayList);
+//            System.out.println(arrayList);
             for (int i = 0; i < arrayList.size(); i = i + 2) {
                 var key = arrayList.get(i).trim();
                 var value = arrayList.get(i + 1).replaceAll(":", "").trim();
